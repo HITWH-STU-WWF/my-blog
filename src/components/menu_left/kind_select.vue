@@ -1,9 +1,9 @@
 <template>
-<div class="app_content">
-  <div class="nav">
+<div class="main">
+  <div class="left">
     <el-menu default-active="/testManagement" class="el-menu-vertical-demo" router>
     <el-submenu index="1">
-      <template slot="title"><i class="el-icon-message"></i>系统管理</template>
+      <template slot="title">系统管理</template>
       <el-menu-item-group>
         <template slot="title">分组一</template>
         <el-menu-item index="/index/testManagement">测试管理</el-menu-item>
@@ -13,13 +13,10 @@
         <el-menu-item index="/index/userList">用户管理</el-menu-item>
       </el-menu-item-group>
     </el-submenu>
-    <el-menu-item index="/index/help"><i class="el-icon-menu"></i>帮助中心</el-menu-item>
-    <el-menu-item index="/index/feedback"><i class="el-icon-setting"></i>意见反馈</el-menu-item>
+    <el-menu-item index="/index/help">帮助中心</el-menu-item>
+    <el-menu-item index="/index/feedback">意见反馈</el-menu-item>
   </el-menu>
-  </el-col>
-  </div>
-  <div class="app_right">
-    <nothing></nothing>
+   </el-col>
   </div>
 </div>
 </template>
@@ -36,22 +33,28 @@ import nothing from '../HelloWorld.vue'
   },
   }
 </script>
-<style >
-.app_nav{
+<style scoped >
+.main{
+  width: 100%;
+  height: 90%;
   position: absolute;
-  flex: 0 0 280px;
-  background: #EFFFFF;
-}
-.app_right{
-  flex: 1;
-/*  overflow: auto;*/
-  padding: 20px;
-  background: #EFFFFF;
+  }
+.left {
+  width: 20%;
+  height: 90%;
+  float: left;
   }
 
-.app_content{
-    flex: 1;
-    display: flex;
-    flex-flow: row;
+  .el-menu{
+    background: #EEEEE6;
   }
+
+.center{
+  width: 80%;
+  height: 90%;
+  float: left;
+  text-align: center;
+  background-color: #E6E6FA;
+  }
+  
 </style>

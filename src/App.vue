@@ -1,12 +1,12 @@
 <template>
-  <div id="app">
-    <div class="app_header">
+  <div class="main">
+
+    <div class="d1">
       <data-header></data-header>
     </div>
-    <div class="app_content">
-
-        <router-view></router-view>
-
+    <div class="d2">
+      <!-- <ue  :defaultMsg=defaultMsg :config=config ref="ue" ></ue> -->
+      <router-view></router-view>
     </div>
 
   </div>
@@ -22,18 +22,24 @@
 <script>
 import DataHeader from './components/header/header_top.vue'
 // import SideNav from './components/common/SideNav.vue'
-import hello from './components/HelloWorld.vue'
-
+import ue from './components/uedir.vue'
+import wait from './components/waitDevelop.vue'
 export default {
   name: 'app',
   data () {
     return {
       pathName: this.$route.name,
+      defaultMsg: '这里是UE测试',
+        config: {
+          initialFrameWidth: null,
+          initialFrameHeight: 350
+        }
     }
   },
   components:{
     DataHeader,
-    hello
+    ue,
+    wait
   },
   watch: {
     '$route': function(){
@@ -46,27 +52,28 @@ export default {
 
 <style>
 
-  #app{
-  height: 100%;
+*{
   margin: 0;
-  display: flex;
-
-  flex-direction: column;
+  padding: 0;
+}
+.main{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  }
+.d1{
+    width: 100%;
+    height: 8%;       
+   }
+.d2{
+ width: 100%;
+ height: 91%;
+ float: left;
+/* background: #EEEEE6;*/
   }
 
-  .app_header{
-    position: relative;
-    flex: 0 0 auto;
-  
-  }
-
-  .app_content{
-    flex: 1;
-    display: flex;
-    flex-flow: row;
-  }
-  .breadcrumb{
-    padding-bottom: 20px;
-    border-bottom: 1px solid #ddd;
-  }
+.breadcrumb{
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
 </style>

@@ -4,24 +4,30 @@
 
         <li class="title">
             <i class="el-icon-menu"></i>
-             <i className="el-icon-edit"></i>
             <span>WWF的个人博客</span>
         </li>
         <div class="test">
         
-        <el-menu-item index="1">关于此博客</el-menu-item>
-    
-         
-        <el-menu-item index="2">关于此博客</el-menu-item>
-    
+        <el-menu-item index="/">发现文章</el-menu-item>
+        <el-menu-item index="/myblog">我的博客</el-menu-item>
+        <el-menu-item index="/forum">论坛区</el-menu-item>
+        <el-menu-item index="/aboutplatform">关于此平台</el-menu-item>
+        <el-menu-item index="5">
+        <el-input
+            placeholder="文章名/博主名"
+            icon="search"
+            v-model="search_message"
+            :on-icon-click="iconSearch">
+        </el-input>
+        </el-menu-item>
         </div>
         <li class="user">
-            <el-dropdown trigger="click" @command="handleCommand">
+            <el-dropdown trigger="click" @command="selectstate">
                 <span class="el-dropdown-link">
-                {{my}}<i class="el-icon-caret-bottom el-icon--right"></i>
+                {{username}}<i class="el-icon-caret-bottom el-icon--right"></i>
               </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-for="item in state" :command="item">{{item}}</el-dropdown-item>
+                    <el-dropdown-item v-for="item in status" :command="item.url">{{item.info}}</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </li>
@@ -34,29 +40,43 @@
 export default {
     data() {
         return {
-        my:"WWF",
-        state:[
-        "退出",
-        "切换",  
-        "注册" 
-        ],
+        username:"登录/注册",
+       status:[
+        {
+            url:'/login',
+            info:'登录'
+        },
+        {
+            url:'/register',
+            info:'注册'
+        }
 
+       ],
+        search_message:''
         }
     },
     methods: {
         handleSelect(key, keyPath) {
-            console.log(key, keyPath);
-        },
-        handleCommand(command){
+            if(key=="5"){ 
+                alert("I am is 5")
+            }else{
 
-            console.log(command)
+            this.$router.push({ path:key });
+        }
+        },
+
+        selectstate(command){
+
+            this.$router.push({ path:command});
+        },
+        iconSearch(vl){
+            console.log(this.search_message)
         }
     }
 }
 </script>
 
-
-<style >
+<style scoped>
 .header-wraper li {
     float: left;
     margin-right: 20px;
@@ -71,6 +91,9 @@ export default {
     font-size: 1.4em;
     margin-left: 5px;
 }
+.title i{
+    margin-left: 30px;
+}
 .el-select-dropdown__list{
   max-height: 187px !important;
 }
@@ -81,12 +104,21 @@ export default {
 .user .el-dropdown {
     position: absolute;
     right: 20px;
-    padding-top: 25px;
+    padding-top: 20px;
     color: #fff !important;
 }
 .test .el-menu-item{
-    left: 500px;
+    left: 150px;
     padding-top: 5px;
+    font-weight:bold;
     font-size: 1.0em;
 }
+.el-input{
+    width: 200px;
+}
+.el-menu{
+    background-color: #475669;
+
+}
+
 </style>
