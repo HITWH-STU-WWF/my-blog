@@ -1,6 +1,6 @@
 <template>
   <div class="main2">
-  <h1 class="top">{{partname}}</h1>
+  <h1 class="top">搜索结果如下</h1>
   <div class="show">
 
   <section class="diyback" style="border-bottom:1px solid   #ADADAD" v-for="article in showlist">
@@ -9,12 +9,6 @@
     <router-link :to="article.url"><button class="blogs-button">阅读全文 >></button><span class="blogs-mes">阅读量：{{article.readtimes}}</span></router-link>
   </section>
 
-<!--  <section class="diyback" style="border-bottom:1px solid   #ADADAD">
-    <router-link class="color1" to="/showarticle/language"><h1 class="blogtitle">如何搭建博客</h1></router-link>
-    <div class="blogs-mes"><p><span>作者:{{auto}}  时间:{{reporttime}}</span></p></div>
-    <p class="hid">{{meg}}</p>
-    <router-link to="/showarticle/language"><button class="blogs-button">阅读全文 >></button></router-link>
-    </section> -->
   </div>
      <el-pagination
             :current-page.sync="currentpage"
@@ -35,11 +29,10 @@ export default{
       showlist:[],
       nowpartlist:[],
       totalsize:0,
-      meg:"The Panda has become the symbol of WWF. The well-known panda logo of WWF originated from a panda named Chi Chi that was transferred from the Beijing Zoo to the London Zoo in the same year of the establishment of WWF.The Panda has become the symbol of WWF. The well-known panda logo of WWF originated from a panda named Chi Chi that was transferred from the Beijing Zoo to the London Zoo in the same year of the establishment of WWF.",
-      auto:'吴炜锋',
+      meg:"",
+      auto:'',
       reporttime:'2017-10-17',
       
-
     }
   },
   components:{
@@ -48,32 +41,25 @@ export default{
   methods:{
     getArticleList(){
       this.axios({
-        url:this.$store.state.infoserverhost+'/article/getarticlelist',
-        method:'get',
+        url:this.$store.state.infoserverhost+'/getsomeinfo/searchsomeinfo',
+        method:'post',
+        params:{'sessionId':this.$store.state.sessionId,'searchStr':this.$store.state.searchStr}
       }).then(res=>{
         if(res.data.status==1){
           this.articlelist=res.data.articles;
           this.getPartArticleList();
         }else{
           this.$notify.error({
-              title: '获取文章列表失败',
+              title: '搜索失败',
               message: res.data.errorInfo,
               });
         }
       })
     },
     getPartArticleList(){
-        if(this.partname=='全部文章'){
-          this.nowpartlist=this.articlelist;
-        }else{
-          var t_part = new Array();
-          for(var i=0;i<this.articlelist.length;i++){
-            if(this.articlelist[i].part==this.partname){
-              t_part.push(this.articlelist[i])
-            }
-          }
-          this.nowpartlist=t_part;
-        }
+
+        this.nowpartlist=this.articlelist;
+        
         this.showlist=this.nowpartlist.slice(0,5);
         this.totalsize=this.nowpartlist.length;
         this.currentpage=1;
@@ -83,15 +69,13 @@ export default{
     }
 
   },
-  props: ['partname'],
+
   watch:{
-    partname:function (val){
-      this.getPartArticleList();
-    },
 
 
   },
   mounted(){
+
     this.getArticleList();
   }
 }

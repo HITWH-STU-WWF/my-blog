@@ -2,20 +2,19 @@
 	<div class="main">
 		<!-- <wait></wait> -->
 		<div class="left">
-    <el-menu class="el-menu-vertical-demo" router>
+    <el-menu class="el-menu-vertical-demo" @select="handleselect"  @close="handleClose" 
+      >
+      <!-- @open="handleOpen" -->
     <el-submenu index="1">
     <template slot="title">文章分类</template>
-    <el-menu-item-group>
-        <el-menu-item index="/article/language">编程语言</el-menu-item>
-        <el-menu-item index="/article/system">操作系统</el-menu-item>
-        <el-menu-item index="/article/frame">开发框架</el-menu-item>
-        <el-menu-item index="/article/others">其他</el-menu-item>
+    <el-menu-item-group >
+      <el-menu-item v-for="item in this.$store.state.part" :index="item">{{item}}</el-menu-item>
     </el-menu-item-group>
     </el-submenu>
     <el-submenu index="2">
     <template slot="title">热门文章</template>
     <el-menu-item-group>
-        <el-menu-item index="/showarticle/language">如何搭建博客</el-menu-item>
+        <el-menu-item v-for="article in hotarticles" :index="article.url">{{article.name}}</el-menu-item>
     </el-menu-item-group>
     </el-submenu>
     <el-submenu index="3">
@@ -30,7 +29,7 @@
    </el-col>
 		</div>
 		<div class="center">
-		<router-view></router-view>
+		<router-view :partname="partname"></router-view>
     <!-- <test></test> -->
 		</div>
 	</div>
@@ -41,6 +40,8 @@ import test from '../test.vue'
 export default{
 	data(){
 		return {
+      partname:'全部文章',
+      hotarticles:[],
 
 		}
 	},
@@ -49,10 +50,43 @@ export default{
     	test
   	},
 	methods:{
-
+    handleselect(key,keyPath){
+      if(keyPath[0]=='1'){
+        this.partname=key;
+      }else{
+        this.$router.push({ path:key});
+      }
+    },
+    handleClose(key, keyPath) {
+        if(key==1){
+          this.partname='全部文章';
+        }
+      },
+      handleOpen(key, keyPath) {
+          if (key==2) {
+          this.getHotList();
+        }
+      },
+    getHotList(){
+      this.axios({
+        url:this.$store.state.infoserverhost+'/article/gethotarticlelist',
+        method:'get',
+      }).then(res=>{
+        if(res.data.status==1){
+          this.hotarticles=res.data.articles;
+        }else{
+          this.$notify.error({
+              title: '获取热门文章列表失败',
+              message: res.data.errorInfo,
+              });
+        }
+      })
+    }
 	},
 	mounted(){
-    alert(this.$store.state.count)
+    this.part=this.$store.state.part;
+    this.getHotList();
+    // alert(this.part);
 	}
 }
 

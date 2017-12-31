@@ -22,7 +22,6 @@
 <script>
 import DataHeader from './components/header/header_top.vue'
 // import SideNav from './components/common/SideNav.vue'
-import ue from './components/uedir.vue'
 import wait from './components/waitDevelop.vue'
 export default {
   name: 'app',
@@ -38,8 +37,11 @@ export default {
   },
   components:{
     DataHeader,
-    ue,
     wait
+  },
+  mounted(){
+ 
+
   },
   watch: {
     '$route': function(){

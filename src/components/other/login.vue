@@ -51,25 +51,44 @@
                             });
             },
             submitForm:function(formName){
-                //与父组件通信传值
-                //this.$emit('showState', [this.beShow,this.formName.user])
-                //提交user password
-                var user = this.formName.user,
-                    password = this.formName.password;
-                    console.log(user,password)
-                    if(true){
-                    this.$notify({
+
+                var user = this.formName.user;
+                var password = this.formName.password;
+                this.axios({
+                    url:this.$store.state.infoserverhost+'/login',
+                    method:'post',
+                    
+                  
+                    params:{"username":user,'pwd':password},
+                }).then(res=>{
+                    if(res.data.status==1){
+                        this.$store.commit('setUserName',res.data.username+' ')
+                        this.$store.commit('setSessionId',res.data.session_id);
+                        window.localStorage.setItem("sessionId",res.data.session_id);
+                        this.$notify({
                             title: '登录成功',
-                            message: '这是一条成功的消息',
+                            message: '欢迎来到博客平台',
                             type: 'success'
                             });
-                        this.$router.push({ path:'/'});
+                        var status=[
+                        {
+                            'url':'canclelogin',
+                            'info':'注销'
+
+                        }
+
+                    ];
+                    this.$store.commit('setStatus',status);
+                    this.$router.push({ path:'/'});
+
                     }else{
-                    this.$notify.error({
+                        this.$notify.error({
                         title: '登录失败',
-                        message: '这是一条错误的提示消息'
+                        message: res.data.errorInfo,
                         });
                     }
+
+                })
         
             },
 

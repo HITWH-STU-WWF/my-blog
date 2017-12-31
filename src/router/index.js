@@ -12,8 +12,12 @@ import manager from '../components/myBlog/manager.vue'
 import classify from '../components/myBlog/classify.vue'
 import register from '../components/other/register.vue'
 import showarticle from '../components/other/showBlog.vue'
+import showmyselfblog from '../components/other/showMyselfBlog.vue'
 import editorarticle from '../components/other/editorblog.vue'
-
+import continueeditor from '../components/other/continueEditor.vue'
+import test from '../components/test.vue'
+import searchresult from '../components/findArticle/searchResult.vue'
+import jmp from '../components/other/jmp.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -26,9 +30,16 @@ export default new Router({
       {
         path:'/',
         component:showarticlelist
-      }
+      },
+      {
+        path:'/searchresult',
+        component:searchresult
 
-
+      },
+      {
+      path:'jmp',
+      component:jmp
+      },
       ]
 
     },
@@ -50,6 +61,10 @@ export default new Router({
         component:classify
       },
       {
+        path:'continue-editor',
+        component:continueeditor
+      },
+      {
         path:'wait-message',
         component:waitdevelop
       },
@@ -60,6 +75,7 @@ export default new Router({
       {
       path:'editorarticle',
       component:editorarticle
+      // component:test
     }
 
     	]
@@ -102,5 +118,10 @@ export default new Router({
       path:'/showarticle/:articlecode',
       component:showarticle
     },
+    {
+      path:'/showmyselfblog/:articlecode',
+      component:showmyselfblog
+      
+    }
   ]
 })

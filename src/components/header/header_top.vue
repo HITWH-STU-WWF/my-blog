@@ -14,7 +14,7 @@
         <el-menu-item index="/aboutplatform">关于此平台</el-menu-item>
         <el-menu-item index="5">
         <el-input
-            placeholder="文章名/博主名"
+            placeholder="请输入文章/作者的关键词"
             icon="search"
             v-model="search_message"
             :on-icon-click="iconSearch">
@@ -24,10 +24,10 @@
         <li class="user">
             <el-dropdown trigger="click" @command="selectstate">
                 <span class="el-dropdown-link">
-                {{username}}<i class="el-icon-caret-bottom el-icon--right"></i>
+                {{this.$store.state.username}}<i class="el-icon-caret-bottom el-icon--right"></i>
               </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-for="item in status" :command="item.url">{{item.info}}</el-dropdown-item>
+                    <el-dropdown-item v-for="item in this.$store.state.status" :command="item.url">{{item.info}}</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </li>
@@ -39,8 +39,7 @@
 <script>
 export default {
     data() {
-        return {
-        username:"登录/注册",
+    return {
        status:[
         {
             url:'/login',
@@ -55,22 +54,53 @@ export default {
         search_message:''
         }
     },
+    mounted(){
+        this.judgeIsLogin();
+    },
     methods: {
         handleSelect(key, keyPath) {
             if(key=="5"){ 
-                alert("I am is 5")
+
             }else{
 
             this.$router.push({ path:key });
         }
         },
-
         selectstate(command){
 
             this.$router.push({ path:command});
         },
         iconSearch(vl){
-            console.log(this.search_message)
+            this.$store.state.searchStr=this.search_message;
+            this.$router.push({ path:'/jmp'});
+            //console.log(this.search_message)
+        },
+
+        judgeIsLogin(){
+            this.axios({
+                url:this.$store.state.infoserverhost+'/user/getusername',
+                method:'post',
+                params:{'sessionId':this.$store.state.sessionId}
+            }).then(res=>{
+                this.$store.commit('setPart',res.data.part);
+                this.$store.commit('setRole',res.data.readrole);
+                if(res.data.status==1){
+                    this.$store.commit('setUserName',res.data.username+' ');
+                    this.status=[
+                        {
+                            'url':'canclelogin',
+                            'info':'注销'
+
+                        }
+
+                    ];
+                    this.$store.commit('setStatus',this.status);
+                    
+                }
+
+
+            })
+      
         }
     }
 }

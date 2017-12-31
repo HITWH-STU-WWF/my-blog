@@ -1,42 +1,49 @@
 <template>
 	<div class="main2">
-		<br>
-		<h1>文章管理</h1>
+		<h1 style="margin-top:5px">文章管理</h1>
 		<div class="line"></div>
 		<el-table
-	      :data="articleData"
+	      :data="showlist"
 	        border
     		style="width: 100%"
 	      >
 	      <el-table-column
-	        prop="title"
+	        prop="name"
 	        label="文章名称"
-	        min-width="200">
+	        min-width="180">
 	      </el-table-column>
+	      
 	      <el-table-column
 	        prop="time"
 	        label="创建日期"
-	        width="150">
+	        width="170">
 	      </el-table-column>
 	      <el-table-column
-	        prop="cateName"
-	        label="文章分类"
-	        min-width="200">
+	        prop="part"
+	        label="文章所属区"
+	        min-width="150">
 	      </el-table-column>
 	      <el-table-column
-	        prop="privateorPublic"
+	        prop="classify"
+	        label="文章所属类"
+	        min-width="150">
+	      </el-table-column>
+	      <el-table-column
+	        prop="readrole"
 	        label="阅读权限"
-	        width="150">
+	        width="90">
 	      </el-table-column>
 	       <el-table-column
 	        prop="state"
-	        label="是否编辑完成"
-	        width="150">
+	        label="编辑状态"
+	        width="80">
 	      </el-table-column>
 		  <el-table-column 
 		  	label="操作"
-		  	width="150">
+		  	width="200">
 	        <template scope="scope">
+	        	<el-button type="success" size="small" 
+	        	@click="handleSee(scope.$index, scope.row)">查看</el-button>
 	          <el-button
 	            size="small"
 	            type="info"
@@ -48,13 +55,14 @@
 	        </template>
 	      </el-table-column>
 	    </el-table>
-
-	   <br>
-     <el-pagination
+	   
+        <el-pagination
+        	style="margin-top:7px"
+            :current-page.sync="currentpage"
             @current-change="pagechange"
-            :page-size="13"
+            :page-size="11"
             layout="prev, pager, next, jumper"
-            :total="100">
+            :total="totalsize">
     </el-pagination>
 	</div>
 </template>
@@ -64,136 +72,63 @@
 		data(){
 			return{
 				articles:[],
-				articleData:[
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'privateorPublic':'所有人',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				{
-					'title':'first',
-					'time':'2017-10-22',
-					'state':'已完成',
-					'cateName':'编程语言'
-				},
-				],
-				cateData:[],
+				totalsize:0,
+				currentpage:1,
+				showlist:[],
+
 			}
 		},
 		mounted(){
-			this.getArticle();
+			this.getArticles();
 		},
 		methods:{
-			getArticle:function(){
-				let that = this;
+			getArticles:function(){
 				this.axios({
-					url:'http://127.0.0.1:3000/users/get-article',
-					dataType:'json',
-					method: 'get',
+					url:this.$store.state.infoserverhost+'/article/getarticlelist',
+					method: 'post',
+					params:{'sessionId':this.$store.state.sessionId}
 				}).then((res)=> {
-					that.articles = res.data;
-					that.getCateMes()
-				})
-			},
-			getCateMes:function(){
-				let that = this;
-				this.axios({
-					url: 'http://127.0.0.1:3000/users/get-categoryMes',
-	                method: 'get',
-				}).then((res)=>{
-					that.cateData = res.data;
-					this.cateChange();
-				})
-			},
-			cateChange:function(){
-				for(let i in this.articles){
-					for (let j in this.cateData){
-						if(this.articles[i].cateID == this.cateData[j].cateID){
-							this.articles[i].cateName = this.cateData[j].cateName;
-						}
+					if(res.data.status==1){
+						this.articles=res.data.articles;
+						this.showlist=this.articles.slice(0,11);
+						this.totalsize=this.articles.length;
+					}else{
+					this.$notify.error({
+                        title: '获取文章列表失败',
+                        message: res.data.errorInfo,
+                        });
 					}
-				}
-				this.articleData = this.articles;
+				})
 			},
-			handleEdit:function(index){
-				let inquire = this.articleData[index].inquire;
-				this.$router.push({path:'/edit',query:{inquire:inquire}})
-			},
-			handleDelete:function(index){
-				let inquire = this.articleData[index].inquire;
-				let cateID = this.articleData[index].cateID;
+			pagechange(val){
+        		this.showlist=this.articles.slice((val-1)*11,val*11);
+    		},
+    		handleSee(index,row){
+    			this.$router.push({ path:'/showmyselfblog/'+row.url});
+    		},
+			handleDelete:function(index,row){
 				this.$confirm('此操作将删除该文章, 是否继续?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
 		        }).then(() => {
 		        	this.axios({
-						url: 'http://127.0.0.1:3000/article/delete-article',
+						url: this.$store.state.infoserverhost+'/article/delarticle',
 		                method: 'post',
-		                data: {"inquire":inquire,"cateID":cateID},
+		                params: {'sessionId':this.$store.state.sessionId,"articleurl":row.url},
 					}).then((res)=>{
-						this.getArticle();
+						if(res.data.status==1){
+						this.getArticles();
 						this.$message({
 				            type: 'success',
 				            message: '删除成功!'
 				          });
+					}else{
+						this.$notify.error({
+                        title: '获取文章列表失败',
+                        message: res.data.errorInfo,
+                        });
+					}
 					})
 		        }).catch(() => {
 		          this.$message({
@@ -202,6 +137,10 @@
 		          });          
 		        });
 			},
+			handleEdit(index,row){
+				this.$store.commit('setArticleUrl',row.url);
+				this.$router.push({path:'/myblog/continue-editor'});
+			}
 		}
 	}
 </script>
@@ -218,9 +157,10 @@ h1 {
 	padding: 0;
 }
 .line{
-	height: 8px;
+	height: 5px;
 	border-bottom: 1px solid #e6e6e6;
-	margin-bottom: 10px;
+	margin-bottom: 7px;
 	}
+
 	
 </style>

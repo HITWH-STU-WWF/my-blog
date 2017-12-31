@@ -1,8 +1,6 @@
 <template>
 	<div id="main">
-	<h2 style="margin-top:4px;text-align:left;margin-left:10px;font-size: 20px">新建文章<span class="blogs-mes">
-	<router-link to="/showarticle/20696476"><el-badge is-dot class="item" style="float:right;margin-right:20px;margin-top: 10px;">如何使用该编辑器</el-badge></router-link></span></h2>
-		<!-- <h4 style="margin-top:10px">新建文章</h4> -->
+		<h2 style="margin-top:4px;text-align:left;margin-left:10px;font-size: 20px">文章编辑</h2>
     	<mavon-editor class="set" v-model="value" @change="getHTML"></mavon-editor>
 
     	<div class="img-upload">
@@ -80,7 +78,7 @@
 		data(){
 			var judgeIsExist = (rule, value, callback) => {
 				for(var i=0; i<this.articlelist.length;i++){
-					if(this.articlelist[i]==value){
+					if(this.articlelist[i]==value && value!=this.oldname){
 						callback(new Error('您的文章列表中已有该文章'));
 					}
 				}
@@ -90,6 +88,8 @@
 			return {
 				isleave:1,	//1表示未保存要离开，2表示经过提示进行保存，3表示自然保存
 				value:'# hello',
+				oldname:'',
+				url:'',
 				content:'',
 				towhere:'',
 				dialogFormVisible: false,
@@ -125,7 +125,7 @@
           	},
 
          	ruleForm: {
-          	classifyname: '',
+          	classifyname:[],
           	articlename: '',
           	articleintroduce:'',
           	role:''
@@ -141,10 +141,9 @@
 		},
 		mounted(){
 			this.getBasicInfo();
+			this.getContinueArticle();
 		},
-		beforeDestory(){
-			alert('i am this')
-		},
+
 		methods: {
 			
 			getHTML:function(value,render){
@@ -213,7 +212,7 @@
 						url:this.$store.state.infoserverhost+'/article/addoreditorarticle',
 	              		method: 'post',
 	              		params:{'sessionId':this.$store.state.sessionId,'classify':this.ruleForm.classifyname[1],'part':this.ruleForm.classifyname[0],'body':this.value,'state':1,'readrole':this.ruleForm.role,'name':this.ruleForm.articlename,
-	              		'introduce':this.ruleForm.articleintroduce,'articleurl':1}
+	              		'introduce':this.ruleForm.articleintroduce,'articleurl':this.url}
 					}).then((res)=>{
 
 					if(res.data.status==1){
@@ -226,7 +225,7 @@
                             type: 'success'
                             });	
 						this.value='# hello';
-						this.$router.push({ path:'/showmyselfblog/'+res.data.url});
+						this.$router.push({ path:'/showmyselfblog/'+this.url});
 					}else{
 					this.$notify.error({
                         title: '发表失败',
@@ -245,15 +244,13 @@
 		    },
 
 		    saveArticle(article){
-		    	
+
 		    	this.$refs[article].validate((valid) => {
           			if (valid) {
             		this.axios({
 						url:this.$store.state.infoserverhost+'/article/savenotfinisharticle',
 	              		method: 'post',
-
-	              		params:{'sessionId':this.$store.state.sessionId,'body':this.value,
-	              		'state':0,'name':this.form.articlename_2,'articleurl':1}
+	              		params:{'sessionId':this.$store.state.sessionId,'body':this.value,'state':0,'name':this.form.articlename_2,'articleurl':this.url}
 					}).then((res)=>{
 
 					if(res.data.status==1){
@@ -271,7 +268,7 @@
 						this.$router.push({ path:this.towhere});
 						}else{
 						this.value='# hello';
-						this.$router.push({ path:'/showmyselfblog/'+res.data.url});
+						this.$router.push({ path:'/showmyselfblog/'+this.url});
 					}
 
 					}else{
@@ -286,15 +283,52 @@
           		}
         	});
 
-		    },
+		   
 
+		},
+
+		getContinueArticle(){
+			this.url=this.$store.state.articleurl;
+			if (this.url=='') {
+				this.$notify.error({
+                        title: '获取文章失败',
+                        message: '请先选择所要编辑的文章',
+                        });
+			}else{
+
+				this.axios({
+					url:this.$store.state.infoserverhost+'/article/getarticle',
+					method:'post',
+					params:{'sessionId':this.$store.state.sessionId,"articleurl":this.url}
+				}).then(res=>{
+					if(res.data.status==1){
+					this.value = res.data.article['body'];
+					this.form.articlename_2=res.data.article['name'];
+					this.oldname=res.data.article['name'];
+					this.ruleForm={
+          				classifyname:[res.data.article['part'],res.data.article['classify']],
+          				articlename:res.data.article['name'],
+          				articleintroduce:res.data.article['introduce'],
+          				role:res.data.article['readrole']
+        				};
+					}else{
+						this.$notify.error({
+                        title: '获取文章失败',
+                        message: res.data.errorInfo,
+                        });
+					}
+				})
+
+			}
+		},
 		},
 		beforeRouteLeave (to, from, next) {
     	// 导航离开该组件的对应路由时调用
     	// 可以访问组件实例 `this`
+    	
     	if(this.value!='# hello'){
     		if(this.isleave!=3){
-    			this.$confirm('您编辑的文章尚未保存，离开将丢失编辑内容，是否确定离开？', '提示', {
+    			this.$confirm('您尚有未保存内容，离开将丢失修改的内容，是否确定离开？', '提示', {
 		          confirmButtonText: '保存并离开',
 		          cancelButtonText: '直接离开',
 		          type: 'warning'
@@ -308,22 +342,23 @@
 		            type: 'info',
 		            message: '已取消保存'
 		          }); 
+		          this.$store.commit('setArticleUrl','');
 		          next(true)         
 		        });
 
     		}else{
-    			
+    			this.$store.commit('setArticleUrl','');
     			next(true)
     		}
     	}else{
-
+    		this.$store.commit('setArticleUrl','');
     		next(true)
     	}
     	
     	
 
-  		},
-
+  		}
+	
 	}
 </script>
 
@@ -370,9 +405,4 @@
 	.diysize.el-form-item{
 		width: 320px;
 	}
-	.blogs-mes{
-    font-size: 14px;
- 	color: #7B7B7B;
-
-  }
 </style>

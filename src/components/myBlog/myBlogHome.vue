@@ -35,9 +35,31 @@ export default{
   	},
 	methods:{
 
+      judgeIsLogin(){
+            this.axios({
+                url:this.$store.state.infoserverhost+'/user/getusername',
+                method:'post',
+                params:{'sessionId':this.$store.state.sessionId}
+            }).then(res=>{
+                this.$store.commit('setPart',res.data.part);
+                this.$store.commit('setRole',res.data.readrole);
+                if(res.data.status==1){
+                    this.$store.commit('setUserName',res.data.username+' ')
+                }else{
+                  this.$notify.error({
+                        title: '请先登录',
+                        // message: res.data.errorInfo,
+                        });
+                  this.$router.push({ path:'/login'});
+                }
+
+
+            })
+      
+        }
 	},
 	mounted(){
-
+    this.judgeIsLogin();
 	}
 }
 

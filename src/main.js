@@ -19,15 +19,53 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
   state: {
-  		myblog:''
+
+    sessionId:window.localStorage.getItem("sessionId"),
+    infoserverhost:'http://47.95.203.78:5001',
+    fileserverhost:'http://47.95.203.78:5000',
+    // infoserverhost:'http://127.0.0.1:5001',
+    // fileserverhost:'http://127.0.0.1:5000',
+    searchStr:'',
+    username:'登录/注册',
+    status:[
+        {
+            url:'/login',
+            info:'登录'
+        },
+        {
+            url:'/register',
+            info:'注册'
+        }
+
+       ],
+    part:[],
+    readrole:'',
+    articleurl:'',
+
   },
   actions: {
 
   },
-  mutations: {
-  		setblog(state,content){
-  			state.myblog=content;
-  		}
+  mutations:{
+      setSessionId(state,sessionid){
+        state.sessionId=sessionid;
+      },
+      setUserName(state,name){
+        state.username=name;
+      },
+      setPart(state,part){
+        state.part=part;
+      },
+      setRole(state,role){
+        state.readrole=role;
+      },
+      setArticleUrl(state,url){
+        state.articleurl=url;
+      },
+      setStatus(state,status){
+        state.status=status;
+      }
+
   },
   getters: {
 
